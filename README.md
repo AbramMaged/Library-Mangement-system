@@ -38,88 +38,20 @@
 Entity-Relationship Overview#
 <img width="2752" height="1536" alt="image" src="https://github.com/user-attachments/assets/896b679b-35f7-4a0e-8e77-e5e101edd879" />
 
-Table Descriptions#
-Table 1: Authors#
+---
+
+## Table Descriptions
+
+### Table 1: `Authors`
+
 Stores information about book authors.
 
-Column	Type	Constraints	Description
-AuthorID	INT	PK, Identity	Auto-generated unique identifier
-AuthorName	NVARCHAR(100)	NOT NULL	Full name of the author
-Biography	NVARCHAR(500)	NULL	Optional short biography
-Relationships: One Author → Many Books
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| `AuthorID` | `INT` | PK, Identity | Auto-generated unique identifier |
+| `AuthorName` | `NVARCHAR(100)` | NOT NULL | Full name of the author |
+| `Biography` | `NVARCHAR(500)` | NULL | Optional short biography |
 
-Table 2: Categories#
-Stores book genre/category names.
+**Relationships:** One `Author` → Many `Books`
 
-Column	Type	Constraints	Description
-CategoryID	INT	PK, Identity	Auto-generated unique identifier
-CategoryName	NVARCHAR(100)	NOT NULL, UNIQUE	Category label (e.g., Fiction, Science)
-Relationships: One Category → Many Books
-
-Table 3: Books#
-The central catalog of all books in the library.
-
-Column	Type	Constraints	Description
-BookID	INT	PK, Identity	Auto-generated unique identifier
-Title	NVARCHAR(200)	NOT NULL	Full book title
-ISBN	NVARCHAR(20)	NOT NULL, UNIQUE	International Standard Book Number
-AuthorID	INT	FK → Authors	Links to the book's author
-CategoryID	INT	FK → Categories	Links to the book's genre
-Quantity	INT	NOT NULL, ≥ 0	Total copies owned by the library
-AvailableCopies	INT	NOT NULL, 0 ≤ value ≤ Quantity	Copies currently on the shelf
-PublishYear	INT	NULL, ≥ 1450	Optional publication year
-CHECK Constraints:
-
-Quantity >= 0 — cannot own a negative number of books
-AvailableCopies >= 0 AND AvailableCopies <= Quantity
-PublishYear IS NULL OR PublishYear >= 1450
-Relationships: Many Books → One Author; Many Books → One Category; One Book → Many Loans
-
-Table 4: Members#
-Stores library member (student/staff) records.
-
-Column	Type	Constraints	Description
-MemberID	INT	PK, Identity	Auto-generated unique identifier
-FullName	NVARCHAR(150)	NOT NULL	Member's full name
-Email	NVARCHAR(254)	NOT NULL, UNIQUE	Contact email address
-Phone	NVARCHAR(30)	NULL	Optional phone number
-RegistrationDate	DATE	NOT NULL, Default: today	Date the member registered
-Relationships: One Member → Many Loans
-
-Table 5: Librarians#
-Stores staff accounts who process loan transactions.
-
-Column	Type	Constraints	Description
-LibrarianID	INT	PK, Identity	Auto-generated unique identifier
-FullName	NVARCHAR(150)	NOT NULL	Librarian's full name
-Email	NVARCHAR(254)	NOT NULL, UNIQUE	Staff email address
-Username	NVARCHAR(50)	NOT NULL, UNIQUE	Login username (no password in Milestone 1)
-Relationships: One Librarian → Many Loans
-
-Table 6: Loans#
-Records every borrowing transaction. This is the most important table as it connects books, members, and librarians.
-
-Column	Type	Constraints	Description
-LoanID	INT	PK, Identity	Auto-generated unique identifier
-BookID	INT	FK → Books	Which book was borrowed
-MemberID	INT	FK → Members	Who borrowed it
-LibrarianID	INT	FK → Librarians	Who processed the loan
-BorrowDate	DATE	NOT NULL, Default: today	Date the book was taken out
-DueDate	DATE	NOT NULL, ≥ BorrowDate	Date the book must be returned
-ReturnDate	DATE	NULL, ≥ BorrowDate	Date returned; NULL = not yet returned
-CHECK Constraints:
-
-DueDate >= BorrowDate — due date cannot be before borrow date
-ReturnDate IS NULL OR ReturnDate >= BorrowDate
-Loan Status Logic:
-
-ReturnDate IS NULL AND DueDate >= today → Active
-ReturnDate IS NULL AND DueDate < today → Overdue
-ReturnDate IS NOT NULL → Returned
-Foreign Key Summary#
-Constraint Name	Table	Column	References
-FK_Books_Authors	Books	AuthorID	Authors.AuthorID
-FK_Books_Categories	Books	CategoryID	Categories.CategoryID
-FK_Loans_Books	Loans	BookID	Books.BookID
-FK_Loans_Members	Loans	MemberID	Members.MemberID
-FK_Loans_Librarians	Loans	LibrarianID	Librarians.LibrarianID
+---
