@@ -13,17 +13,6 @@
 
 ---
 
-## Script Execution Order
-
-> [!IMPORTANT]
-> Run the SQL scripts **in this exact order** on a fresh SQL Server instance. Scripts `01` through `03` are designed to be run **once only** on a new database. Running them again on an existing database may produce duplicate data errors.
-
-| Order | File | Purpose |
-|---|---|---|
-| 1 | `01_CreateDatabase.sql` | Creates `LibraryManagementDB` (skips if already exists) |
-| 2 | `02_CreateTables.sql` | Creates all six tables with constraints |
-| 3 | `03_InsertSampleData.sql` | Inserts realistic sample data |
-| 4 | `04_TestQueries.sql` | Verifies data with 10 queries + constraint tests |
 
 **How to run in SSMS:**
 1. Open SQL Server Management Studio.
