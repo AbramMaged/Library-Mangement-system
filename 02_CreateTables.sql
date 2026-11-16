@@ -35,3 +35,149 @@ END
 ELSE
     PRINT 'Table "Authors" already exists. Skipping.';
 GO
+-- ============================================================
+-- TABLE 2: Categories
+-- ============================================================
+-- Stores book genre/category names (e.g., Fiction, Science).
+-- One category can apply to many books (1-to-Many with Books).
+
+IF NOT EXISTS (
+    SELECT * FROM sys.tables WHERE name = 'Categories'
+)
+BEGIN
+    CREATE TABLE Categories (
+        CategoryID      INT             IDENTITY(1,1)   NOT NULL,
+        CategoryName    NVARCHAR(100)                   NOT NULL,
+
+        CONSTRAINT PK_Categories PRIMARY KEY (CategoryID),
+
+        -- UNIQUE ensures no two categories share the same name.
+        CONSTRAINT UQ_Categories_CategoryName UNIQUE (CategoryName)
+    );
+    PRINT 'Table "Categories" created.';
+END
+ELSE
+    PRINT 'Table "Categories" already exists. Skipping.';
+GO
+
+-- ============================================================
+-- TABLE 3: Books
+-- ============================================================
+-- Stores the library book catalog.
+-- References Authors and Categories via foreign keys.
+-- Tracks total quantity and currently available copies.
+
+IF NOT EXISTS (
+    SELECT * FROM sys.tables WHERE name = 'Books'
+)
+BEGIN
+    CREATE TABLE Books (
+        BookID          INT             IDENTITY(1,1)   NOT NULL,
+        Title           NVARCHAR(200)                   NOT NULL,
+        ISBN            NVARCHAR(20)                    NOT NULL,
+        AuthorID        INT                             NOT NULL,   -- Links to Authors table
+        CategoryID      INT                             NOT NULL,   -- Links to Categories table
+        Quantity        INT                             NOT NULL,   -- Total copies owned by library
+        AvailableCopies INT                             NOT NULL,   -- Copies currently on the shelf
+        PublishYear     INT                             NULL,       -- Optional publication year
+
+        -- Primary Key
+        CONSTRAINT PK_Books PRIMARY KEY (BookID),
+
+        -- Each book must have a unique ISBN.
+        CONSTRAINT UQ_Books_ISBN UNIQUE (ISBN),
+
+        -- Foreign Key: AuthorID must exist in the Authors table.
+        -- ON DELETE NO ACTION means you cannot delete an author
+        -- who still has books assigned to them.
+        CONSTRAINT FK_Books_Authors
+            FOREIGN KEY (AuthorID)
+            REFERENCES Authors (AuthorID)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+
+        -- Foreign Key: CategoryID must exist in the Categories table.
+        CONSTRAINT FK_Books_Categories
+            FOREIGN KEY (CategoryID)
+            REFERENCES Categories (CategoryID)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+
+        -- CHECK: Quantity cannot be a negative number.
+        CONSTRAINT CK_Books_Quantity
+            CHECK (Quantity >= 0),
+
+        -- CHECK: AvailableCopies must be between 0 and Quantity.
+        -- You cannot have more available copies than total copies.
+        CONSTRAINT CK_Books_AvailableCopies
+            CHECK (AvailableCopies >= 0 AND AvailableCopies <= Quantity),
+
+        -- CHECK: Publication year must be a realistic value.
+        -- 1450 is roughly when the printing press was invented.
+        CONSTRAINT CK_Books_PublishYear
+            CHECK (PublishYear IS NULL OR PublishYear >= 1450)
+    );
+    PRINT 'Table "Books" created.';
+END
+ELSE
+    PRINT 'Table "Books" already exists. Skipping.';
+GO
+
+-- ============================================================
+-- TABLE 4: Members
+-- ============================================================
+-- Stores library member (student/staff) information.
+-- One member can have many loan records (1-to-Many with Loans).
+
+IF NOT EXISTS (
+    SELECT * FROM sys.tables WHERE name = 'Members'
+)
+BEGIN
+    CREATE TABLE Members (
+        MemberID            INT             IDENTITY(1,1)   NOT NULL,
+        FullName            NVARCHAR(150)                   NOT NULL,
+        Email               NVARCHAR(254)                   NOT NULL,
+        Phone               NVARCHAR(30)                    NULL,       -- Optional phone number
+        -- DEFAULT GETDATE() automatically sets today's date when
+        -- a new member is registered without specifying a date.
+        RegistrationDate    DATE            DEFAULT GETDATE() NOT NULL,
+
+        CONSTRAINT PK_Members PRIMARY KEY (MemberID),
+
+        -- Each member must have a unique email address.
+        CONSTRAINT UQ_Members_Email UNIQUE (Email)
+    );
+    PRINT 'Table "Members" created.';
+END
+ELSE
+    PRINT 'Table "Members" already exists. Skipping.';
+GO
+
+-- ============================================================
+-- TABLE 5: Librarians
+-- ============================================================
+-- Stores librarian staff accounts (no passwords in Milestone 1).
+-- One librarian can process many loans (1-to-Many with Loans).
+
+IF NOT EXISTS (
+    SELECT * FROM sys.tables WHERE name = 'Librarians'
+)
+BEGIN
+    CREATE TABLE Librarians (
+        LibrarianID INT             IDENTITY(1,1)   NOT NULL,
+        FullName    NVARCHAR(150)                   NOT NULL,
+        Email       NVARCHAR(254)                   NOT NULL,
+        Username    NVARCHAR(50)                    NOT NULL,
+
+        CONSTRAINT PK_Librarians PRIMARY KEY (LibrarianID),
+
+        -- Each librarian must have a unique email and username.
+        CONSTRAINT UQ_Librarians_Email    UNIQUE (Email),
+        CONSTRAINT UQ_Librarians_Username UNIQUE (Username)
+    );
+    PRINT 'Table "Librarians" created.';
+END
+ELSE
+    PRINT 'Table "Librarians" already exists. Skipping.';
+GO
+
