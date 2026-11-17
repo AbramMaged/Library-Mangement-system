@@ -181,3 +181,77 @@ ELSE
     PRINT 'Table "Librarians" already exists. Skipping.';
 GO
 
+-- ============================================================
+-- TABLE 6: Loans
+-- ============================================================
+-- Records every borrowing transaction.
+-- Links Books, Members, and Librarians.
+-- NULL ReturnDate = book has not been returned yet (active loan).
+
+IF NOT EXISTS (
+    SELECT * FROM sys.tables WHERE name = 'Loans'
+)
+BEGIN
+    CREATE TABLE Loans (
+        LoanID          INT     IDENTITY(1,1)   NOT NULL,
+        BookID          INT                     NOT NULL,   -- Which book was borrowed
+        MemberID        INT                     NOT NULL,   -- Who borrowed it
+        LibrarianID     INT                     NOT NULL,   -- Who processed the loan
+        BorrowDate      DATE    DEFAULT GETDATE() NOT NULL, -- Date the book was taken out
+        DueDate         DATE                    NOT NULL,   -- Date the book must be returned
+        ReturnDate      DATE                    NULL,       -- NULL = not yet returned
+
+        CONSTRAINT PK_Loans PRIMARY KEY (LoanID),
+
+        -- Foreign Key: BookID must exist in Books table.
+        CONSTRAINT FK_Loans_Books
+            FOREIGN KEY (BookID)
+            REFERENCES Books (BookID)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+
+        -- Foreign Key: MemberID must exist in Members table.
+        CONSTRAINT FK_Loans_Members
+            FOREIGN KEY (MemberID)
+            REFERENCES Members (MemberID)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+
+        -- Foreign Key: LibrarianID must exist in Librarians table.
+        CONSTRAINT FK_Loans_Librarians
+            FOREIGN KEY (LibrarianID)
+            REFERENCES Librarians (LibrarianID)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+
+        -- CHECK: DueDate must be on or after BorrowDate.
+        -- A book cannot be due before it was borrowed.
+        CONSTRAINT CK_Loans_DueDate
+            CHECK (DueDate >= BorrowDate),
+
+        -- CHECK: ReturnDate must be NULL (not returned) or
+        -- on/after BorrowDate (returned on or after borrowing day).
+        CONSTRAINT CK_Loans_ReturnDate
+            CHECK (ReturnDate IS NULL OR ReturnDate >= BorrowDate)
+    );
+    PRINT 'Table "Loans" created.';
+END
+ELSE
+    PRINT 'Table "Loans" already exists. Skipping.';
+GO
+
+-- ============================================================
+-- SUMMARY
+-- ============================================================
+-- Confirm all six tables exist in the database.
+SELECT
+    t.name          AS TableName,
+    s.name          AS SchemaName
+FROM sys.tables t
+JOIN sys.schemas s ON t.schema_id = s.schema_id
+ORDER BY t.name;
+GO
+
+PRINT '--- All tables verified. Run 03_InsertSampleData.sql next. ---';
+GO
+
