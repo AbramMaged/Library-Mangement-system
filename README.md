@@ -30,19 +30,3 @@ here the one prof hanfy wants
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/badc228a-4f47-4bc0-a9e2-40cbfbbfd2c9" />
 
 ---
-
-## Table Descriptions
-
-### Table 1: `Authors`
-
-Stores information about book authors.
-
-| Column | Type | Constraints | Description |
-|---|---|---|---|
-| `AuthorID` | `INT` | PK, Identity | Auto-generated unique identifier |
-| `AuthorName` | `NVARCHAR(100)` | NOT NULL | Full name of the author |
-| `Biography` | `NVARCHAR(500)` | NULL | Optional short biography |
-
-**Relationships:** One `Author` → Many `Books`
-
----
