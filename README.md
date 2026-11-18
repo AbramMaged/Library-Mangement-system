@@ -4,7 +4,7 @@
 Entity-Relationship Overview#
 <img width="2752" height="1536" alt="image" src="https://github.com/user-attachments/assets/896b679b-35f7-4a0e-8e77-e5e101edd879" />
 here the one prof hanfy wants 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/badc228a-4f47-4bc0-a9e2-40cbfbbfd2c9" />
+<img width="1752" height="1024" alt="schema new" src="https://github.com/user-attachments/assets/42228c2d-45b3-4444-8db7-3c0ff6b1ba60" />
 
 ---
 ## 1. Database Connection Details
